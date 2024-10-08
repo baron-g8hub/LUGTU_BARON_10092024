@@ -4,17 +4,13 @@ using FileProcessorAPI.Models;
 using System.Globalization;
 using System.Text;
 
-namespace FileProcessorAPI
+namespace FileProcessorAPI.DataProcess
 {
     public class UploadFileHandler
     {
         public List<SALE> result = [];
 
-        /// <summary>
-        /// UploadFile
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
+        #region Upload CSV File
         public string UploadFile(IFormFile file)
         {
             try
@@ -44,6 +40,7 @@ namespace FileProcessorAPI
                 throw new Exception(e.Message);
             }
         }
+        #endregion
 
         #region Read CSV
         public List<SALE> ReadSalesCSV(string fileName)
@@ -82,33 +79,10 @@ namespace FileProcessorAPI
         }
         #endregion
 
-
-        public List<SALE> GetSalesByBranch(string branch)
-        {
-            var list = new List<SALE>();
-
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
-            var files = Directory.EnumerateFiles(path, "*.csv");
-            foreach (string file in files)
-            {
-                using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read))
-                {
-                    // Use the file stream to read data.
-
-                    var ret = ReadCsvFile(fs, branch);
-                    list.AddRange(ret);
-                }
-            }
-
-            return list;
-        }
-
-
-
+        #region Read Sales By Branch
         public List<SALE> ReadCsvFile(Stream fileStream, string branch)
         {
             var list = new List<SALE>();
-
             try
             {
                 using (var reader = new StreamReader(fileStream))
@@ -132,10 +106,6 @@ namespace FileProcessorAPI
                         }
                     }
                     return list;
-
-                    //var records = csv.GetRecords<SALE>();
-                    //return records.ToList();
-
                 }
             }
             catch (HeaderValidationException ex)
@@ -153,6 +123,27 @@ namespace FileProcessorAPI
                 // General exception for other issues
                 throw new ApplicationException("Error reading CSV file", ex);
             }
+        }
+        #endregion
+
+        public List<SALE> GetSalesByBranch(string branch)
+        {
+            var list = new List<SALE>();
+
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
+            var files = Directory.EnumerateFiles(path, "*.csv");
+            foreach (string file in files)
+            {
+                using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read))
+                {
+                    // Use the file stream to read data.
+
+                    var ret = ReadCsvFile(fs, branch);
+                    list.AddRange(ret);
+                }
+            }
+
+            return list;
         }
     }
 }

@@ -9,3 +9,9 @@ Files are saved in the Application root folder.
 
 
 The sample API-Key to be used: "ApiKey": "6CBxzdYcEgNDrRhMbDpkBF7e4d4Kib46dwL9ZE5egiL0iL5Y3dzREUBSUYVUwUkN"
+
+This example demonstrates a report generation submitted by different store branches of a company.
+A report can be generated Daily, Monthly, Yearly, etc.
+
+This is the result when requesting a SALES based on branches.
+![image](https://github.com/user-attachments/assets/8eb1085f-b7f6-4a86-9f2d-6f00d27b1e51)

@@ -22,12 +22,9 @@ namespace FileProcessorAPI.Controllers
         [HttpGet("{branch}")]
         public IEnumerable<SALE> GetSalesByBranch(string branch)
         {
-            var list = new UploadFileHandler().GetSalesByBranch(branch);
+            var list = new UploadFileHandler().GetSalesByFilter("BRANCH",branch);
             return list.ToArray();
         }
-
-
-
 
         // POST api/<FileUploadController>
         [HttpPost] 
@@ -35,17 +32,5 @@ namespace FileProcessorAPI.Controllers
         {
             return Ok(new UploadFileHandler().UploadFile(file));
         }
-
-        //// PUT api/<FileUploadController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/<FileUploadController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
     }
 }

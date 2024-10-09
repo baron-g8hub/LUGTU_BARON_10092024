@@ -42,7 +42,7 @@ namespace FileProcessorAPI.DataProcess
         }
         #endregion
 
-        #region Read CSV
+        #region Read CSV by Filename
         public List<SALE> ReadSalesCSV(string fileName)
         {
             string path = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles", fileName);
@@ -71,18 +71,25 @@ namespace FileProcessorAPI.DataProcess
         #region Write CSV
         public void WriteSalesCSV(string path, List<SALE> sales, string fileName)
         {
-            using (var write = new StreamWriter(path + fileName))
-            using (var csv = new CsvWriter(write, CultureInfo.InvariantCulture))
+            try
             {
-                csv.WriteRecords(sales);
+                using (var write = new StreamWriter(path + fileName))
+                using (var csv = new CsvWriter(write, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteRecords(sales);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
         #endregion
 
-        #region Read Sales By Branch
-        public List<SALE> ReadCsvFile(Stream fileStream, string branch)
+        #region Read CSV with Filter
+        public SALE ReadCsvFile(Stream fileStream)
         {
-            var list = new List<SALE>();
+            var ret = new SALE();
             try
             {
                 using (var reader = new StreamReader(fileStream))
@@ -92,20 +99,9 @@ namespace FileProcessorAPI.DataProcess
                     csv.ReadHeader();
                     while (csv.Read())
                     {
-                        var sale = csv.GetRecord<SALE>();
-                        if (branch != null)
-                        {
-                            if (branch == sale.Branch)
-                            {
-                                list.Add(sale);
-                            }
-                        }
-                        else
-                        {
-                            list.Add(sale);
-                        }
+                        ret = csv.GetRecord<SALE>();
                     }
-                    return list;
+                    return ret;
                 }
             }
             catch (HeaderValidationException ex)
@@ -126,24 +122,60 @@ namespace FileProcessorAPI.DataProcess
         }
         #endregion
 
-        public List<SALE> GetSalesByBranch(string branch)
+        public List<SALE> GetSalesByFilter(string filterType, string filter)
         {
             var list = new List<SALE>();
-
-            string path = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
-            var files = Directory.EnumerateFiles(path, "*.csv");
-            foreach (string file in files)
+            try
             {
-                using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read))
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
+                var files = Directory.EnumerateFiles(path, "*.csv");
+                foreach (string file in files)
                 {
-                    // Use the file stream to read data.
+                    using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read))
+                    {
+                        // Use the file stream to read data.
+                        var sale = ReadCsvFile(fs);
+                        switch (filterType.ToUpper())
+                        {
+                            case "BRANCH":
+                                if (sale.Branch == filter)
+                                {
+                                    list.Add(sale);
+                                }
+                                break;
 
-                    var ret = ReadCsvFile(fs, branch);
-                    list.AddRange(ret);
+                            case "DAY":
+                                if (sale.Date.Day.ToString() == filter)
+                                {
+                                    list.Add(sale);
+                                }
+                                break;
+
+                            case "MONTH":
+                                if (sale.Date.Month.ToString() == filter)
+                                {
+                                    list.Add(sale);
+                                }
+                                break;
+
+                            case "YEAR":
+                                if (sale.Date.Year.ToString() == filter)
+                                {
+                                    list.Add(sale);
+                                }
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
                 }
+                return list;
             }
-
-            return list;
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
 }

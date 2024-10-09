@@ -10,6 +10,14 @@ namespace FileProcessorAPI.Controllers
     [ApiController]
     public class FileUploadController : ControllerBase
     {
+
+        private readonly ILogger<FileUploadController> _logger;
+
+        public FileUploadController(ILogger<FileUploadController> logger)
+        {
+            _logger = logger;
+        }
+
         // GET: api/<FileUploadController>
         [HttpGet]
         public IEnumerable<SALE> GetSales(string fileName)
@@ -30,7 +38,15 @@ namespace FileProcessorAPI.Controllers
         [HttpPost] 
         public IActionResult UploadCSV(IFormFile file)
         {
-            return Ok(new UploadFileHandler().UploadFile(file));
+            try
+            {
+                _logger.LogInformation("File successfully uploaded. " + file.FileName);
+                return Ok(new UploadFileHandler().UploadFile(file));
+            }
+            catch (Exception e)
+            {
+              return BadRequest(e.Message);
+            }
         }
     }
 }
